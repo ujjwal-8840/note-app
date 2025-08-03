@@ -1,0 +1,73 @@
+const express = require('express')
+const router = express.Router()
+const Notes = require('../models/notes')
+
+router.post('/',async(req,res)=>{
+    try{
+    const data = req.body
+const Newnote = new Notes(data)
+const response = await Newnote.save()
+console.log('Data created',response)
+res.status(200).json({message:'data created successfully',resposne:response})
+    }catch(err){
+        console.log('somethimg went error',err)
+        res.status(500).json({message:'internal server error',error:err})
+    }
+});
+router.get('/',async (req,res)=>{
+    try{
+        const data = await Notes.find()
+        console.log('data fetched',data)
+        res.status(200).json({message:"data fetched",data:data})
+    }catch(error){
+        console.log('something went wrong',error)
+        res.status(500).json({message:'internal server error',error})
+    }
+});
+router.get('/profile',async (req,res)=>{
+    try{
+        const userData = req.notes
+        console.log(userData)
+        const userId = userData.id
+        const note = await Notes.findById(userId)
+        console.log('profile successfully fetched',note)
+        res.status(200).json({message:'profile fetched',data:note})
+    }catch(error){
+        console.log('something went wrong',error)
+        res.status(500).json({message:'internal server error',error})
+    }
+});
+router.put('/:id',async (req,res)=>{
+    try{
+  const updateNote = req.params.id
+  const updateNoteData = req.body
+  const response = await Notes.findByIdAndUpdate(updateNote,updateNoteData ,{
+    new:true,
+    runValidators:true
+  })
+  console.log('data fetched',response)
+  if(!response){
+    return res.status(404).json({message:'note not found'})
+  }
+  res.status(200).json({message:'data updated',data:response})
+    }catch(err){
+        console.log('something went wrong',err)
+        res.status(500).json({message:'internal server error',error:err})
+    }
+});
+router.delete('/:id', async (req,res)=>{
+    try{
+const noteDelete = req.params.id
+const response = await Notes.findByIdAndDelete(noteDelete)
+if(!response){
+    return res.status(404).json({message:'note not found'})
+}
+console.log('data fetched successfully',response)
+res.status(200).json({message:'data deleted',response})
+    }catch(error){
+        console.log('something wemt wrong',error)
+        res.status(500).json({message:'internal server error',error})
+    }
+})
+
+module.exports = router
