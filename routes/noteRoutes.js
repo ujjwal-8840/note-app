@@ -24,19 +24,7 @@ router.get('/',async (req,res)=>{
         res.status(500).json({message:'internal server error',error})
     }
 });
-router.get('/profile',async (req,res)=>{
-    try{
-        const userData = req.notes
-        console.log(userData)
-        const userId = userData.id
-        const note = await Notes.findById(userId)
-        console.log('profile successfully fetched',note)
-        res.status(200).json({message:'profile fetched',data:note})
-    }catch(error){
-        console.log('something went wrong',error)
-        res.status(500).json({message:'internal server error',error})
-    }
-});
+
 router.put('/:id',async (req,res)=>{
     try{
   const updateNote = req.params.id
