@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const Notes = require('../models/notes')
+const Notes = require('../models/notes');
+const { jwtAuthMiddleware,generateToken } = require('../jwt');
 
 router.post('/',async(req,res)=>{
     try{
@@ -8,13 +9,22 @@ router.post('/',async(req,res)=>{
 const Newnote = new Notes(data)
 const response = await Newnote.save()
 console.log('Data created',response)
-res.status(200).json({message:'data created successfully',resposne:response})
+const payload = {
+    id:response._id,
+    username:response.username,
+    title:response.title
+}
+console.log(JSON.stringify(payload))
+const token = generateToken(payload)
+console.log('token is generated',token)
+res.status(200).json({resposne:response,token:token})
+
     }catch(err){
         console.log('somethimg went error',err)
         res.status(500).json({message:'internal server error',error:err})
     }
 });
-router.get('/',async (req,res)=>{
+router.get('/',jwtAuthMiddleware,async (req,res)=>{
     try{
         const data = await Notes.find()
         console.log('data fetched',data)
@@ -25,7 +35,7 @@ router.get('/',async (req,res)=>{
     }
 });
 
-router.put('/:id',async (req,res)=>{
+router.put('/:id',jwtAuthMiddleware,async (req,res)=>{
     try{
   const updateNote = req.params.id
   const updateNoteData = req.body
@@ -43,7 +53,7 @@ router.put('/:id',async (req,res)=>{
         res.status(500).json({message:'internal server error',error:err})
     }
 });
-router.delete('/:id', async (req,res)=>{
+router.delete('/:id',jwtAuthMiddleware, async (req,res)=>{
     try{
 const noteDelete = req.params.id
 const response = await Notes.findByIdAndDelete(noteDelete)
