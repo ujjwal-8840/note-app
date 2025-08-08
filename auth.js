@@ -1,13 +1,13 @@
 const passport = require('passport')
-const Notes = require('./models/notes')
+const User = require('./models/user')
 const LocalStrategy = require('passport-local').Strategy
 
 passport.use( new LocalStrategy(async (username,password,done)=>{
     //Authentication logic is here
     try{
-         const note = await Notes.findOne({username:username})
+         const note = await User.findOne({username:username})
          if(!note)
-            return done(null,false,{message:'username is imcorrect'})
+            return done(null,false,{message:'username is icorrect'})
       const isMatched = await note.comparePassword(password)
       if(isMatched){
         return done(null,note)

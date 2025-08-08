@@ -15,7 +15,7 @@ try{
 const decoded = jwt.verify(token,process.env.JWT_SECRET)
 console.log('decoded',decoded)
 //To attach notes to jwt token//
-req.note = decoded
+req.user = decoded
 next()
 }catch(error){
     console.log('something went wrong',error)
@@ -24,7 +24,7 @@ next()
 }
 
 //Function to generate token//
-const generateToken = (notesData)=>{
-    return jwt.sign(notesData,process.env.JWT_SECRET)
+const generateToken = (userData)=>{
+    return jwt.sign(userData,process.env.JWT_SECRET)
 }
 module.exports = {jwtAuthMiddleware,generateToken}

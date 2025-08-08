@@ -1,7 +1,8 @@
 require('dotenv').config()
 const express = require('express');
 const db = require('./db')
-const Notes = require('./models/notes')
+const Users = require('./models/user')
+const Note = require('./models/note')
 const bodyParser = require('body-parser');
 const passport=require('./auth')
 //const { jwtAuthMiddleware,generateToken } = require('./jwt');//
@@ -17,7 +18,10 @@ app.get('/',(req,res)=>{
    res.send('server is ready')
 });
 const noteRoutes = require('./routes/noteRoutes')
-app.use('/notes',noteRoutes)
+app.use('/note',noteRoutes)
+const userRoutes = require('./routes/userRoutes')
+app.use('/user',userRoutes)
+
 const PORT = process.env.PORT
 app.listen(PORT,()=>{
     console.log('welcome to my server')
