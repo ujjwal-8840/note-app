@@ -60,7 +60,7 @@ router.put('/:id',jwtAuthMiddleware,async (req,res)=>{
   if(!response){
     return res.status(404).json({message:'note not found'})
   }
-  res.status(200).json({message:'data updated',data:response})
+  res.status(200).json({message:'data updated',profile:response})
     }catch(err){
         console.log('something went wrong',err)
         res.status(500).json({message:'internal server error',error:err})
