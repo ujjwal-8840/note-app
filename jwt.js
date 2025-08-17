@@ -25,6 +25,6 @@ next()
 
 //Function to generate token//
 const generateToken = (userData)=>{
-    return jwt.sign(userData,process.env.JWT_SECRET)
+    return jwt.sign(userData,process.env.JWT_SECRET,{expiresIn:'20m'})
 }
 module.exports = {jwtAuthMiddleware,generateToken}

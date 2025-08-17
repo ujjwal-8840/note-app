@@ -5,10 +5,15 @@ const Users = require('./models/user')
 const Note = require('./models/note')
 const bodyParser = require('body-parser');
 const passport=require('./auth')
+const helmet = require("helmet")
+
 //const { jwtAuthMiddleware,generateToken } = require('./jwt');//
 
 const app = express();
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+app.use(helmet())
+
 
 app.use(bodyParser.json())
 
@@ -24,5 +29,5 @@ app.use('/user',userRoutes)
 
 const PORT = process.env.PORT
 app.listen(PORT,()=>{
-    console.log('welcome to my server')
+    console.log('server running on this http//localhost:PORT')
 })
