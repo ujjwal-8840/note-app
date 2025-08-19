@@ -5,14 +5,13 @@ const Users = require('./models/user')
 const Note = require('./models/note')
 const bodyParser = require('body-parser');
 const passport=require('./auth')
-const helmet = require("helmet")
+const Ratelimiter =require('./ratelimiter')
 
-//const { jwtAuthMiddleware,generateToken } = require('./jwt');//
 
 const app = express();
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
-app.use(helmet())
+app.use(Ratelimiter())
 
 
 app.use(bodyParser.json())
