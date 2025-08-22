@@ -19,7 +19,7 @@ req.user = decoded
 next()
 }catch(error){
     console.log('something went wrong',error)
-    res.status(500).json({message:"invalid token",data:'malawea'})
+    res.status(500).json({message:"invalid token",})
 }
 }
 
