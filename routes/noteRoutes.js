@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const Note = require('../models/note');
 const { jwtAuthMiddleware } = require('../jwt');
+//const { message } = require('../validations/userValidation');//
 
 
 router.post('/',jwtAuthMiddleware,async(req,res)=>{
@@ -56,6 +57,37 @@ res.status(200).json({message:'success',response:response})
         res.status(500).json({message:'Internal server error',err:error})
     }
        
+       
 
-    })
+    });
+
+    router.put('/update/:id', async (req,res)=>{
+      try
+      {
+        const currentNotes = req.params.id
+        const updateNotes = req.body
+        const updateNewNotes =await Note.findByIdAndUpdate(currentNotes,updateNotes,{
+            new:true,
+            runValidators:true
+        })
+        console.log(updateNewNotes)
+        res.status(200).json({message:'notes updated',data:updateNewNotes})
+}catch(err){
+console.log('notes are not updated',err)
+res.status(500).json({message:'inetrnal server error',error:err})
+}
+    });
+    router.delete('/Delete/:id',async(req,res)=>{
+      try{
+        const deleteData = req.params.id
+          const deletedNotes = await Note.findByIdAndDelete(deleteData)
+          if(!deletedNotes)
+            return res.status(404).json({message:'noteId not found'})
+          console.log('data fetched',deletedNotes)
+          res.status(200).json({message:'data deleted successfully',data:deletedNotes})
+      }catch(error){
+        console.log('something went wrong',error)
+        res.status(500).json({message:'data deleted successfully',data:deletedNotes})
+      }
+    });
     module.exports = router

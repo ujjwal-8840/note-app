@@ -15,6 +15,11 @@ password:{
     type:String,
     require:true,
     unique:true
+},
+role:{
+     type:String,
+    enum:["user","admin"], 
+    require:true
 }
 
 })
