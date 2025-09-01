@@ -3,7 +3,9 @@ const router = express.Router()
 const Note = require('../models/note');
 const { jwtAuthMiddleware } = require('../jwt');
 //const { message } = require('../validations/userValidation');//
-
+ const {GoogleGenerativeAI} = require("@google/generative-ai")
+    const googleAi = new GoogleGenerativeAI(process.env.API_KEY)
+    const geminiModel = googleAi.getGenerativeModel({model:"gemini-2.5-flash"})
 
 router.post('/',jwtAuthMiddleware,async(req,res)=>{
     try{
@@ -90,4 +92,26 @@ res.status(500).json({message:'inetrnal server error',error:err})
         res.status(500).json({message:'data deleted successfully',data:deletedNotes})
       }
     });
+
+// Integrate google gemini ai with our project //
+
+
+    router.post('/ai', async(req,res)=>{
+      try{
+      const {prompt} = req.body
+      if(!prompt)
+        return res.status(401).json({message:"prompt is required"})
+      const result = await geminiModel.generateContent(prompt)
+      const response =await  result.response
+      const text = response.text()
+      console.log(text);
+      res.status(200).json({message:"notes created",data:text})
+    }catch(error){
+        console.log("something went wrong",error)
+        res.status(500).json({message:"internal server error", err:error})
+      }
+    })
+    
+
+
     module.exports = router

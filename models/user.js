@@ -1,24 +1,24 @@
 const mongoose= require('mongoose')
 const bcrypt =require('bcrypt')
 const userSchema = new mongoose.Schema({
-email:{
-    type:String,
-    require:true,
-    unique:true
-
-},
 username:{
     type:String,
-    require:true
+    require:true,
 },
-password:{
+email:{
     type:String,
     require:true,
     unique:true
 },
 role:{
+    type:String,
+     enum:["user","admin"], 
+    require:true,
+    
+},
+password:{
      type:String,
-    enum:["user","admin"], 
+    unique:true,
     require:true
 }
 

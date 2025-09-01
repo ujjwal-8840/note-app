@@ -7,11 +7,13 @@ const { jwtAuthMiddleware,generateToken } = require('../jwt');
 const signup = require('../validations/userValidation');
 // const valdidateMiddleware = require('../validations/valdidateMiddleware');
 const validate = require('../validations/valdidateMiddleware')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+
 
 router.post('/signup',validate(signup),async(req,res)=>{
     try{
     const data = req.body
+    console.log(data)
 const Newuser = new User(data)
 const response = await Newuser.save()
 console.log('Data created',response)
@@ -33,7 +35,7 @@ res.status(200).json({resposne:response,token:token})
 router.post('/login',async (req,res)=>{
     const {email,password} = req.body;
     if(!email||!password)
-        return res.status(400).json({message:'Email and passord required'})
+        return res.status(400).json({message:'Email and password required'})
     const user = await User.findOne({email})
     if(!user)
         return res.status(401).json({message:'user not found'})

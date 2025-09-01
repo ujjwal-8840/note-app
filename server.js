@@ -7,12 +7,13 @@ const bodyParser = require('body-parser');
 const passport=require('./auth')
 const Ratelimiter =require('./ratelimiter')
 const helmet = require("helmet")
+const cors = require('cors')
 
 const app = express();
-app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 app.use(Ratelimiter())
 app.use(helmet())
+app.use(express.json())
 
 
 app.use(bodyParser.json())
