@@ -1,5 +1,7 @@
 const mongoose= require('mongoose')
 const bcrypt =require('bcrypt')
+const { type } = require('../validations/userValidation')
+const { boolean } = require('joi')
 const userSchema = new mongoose.Schema({
 username:{
     type:String,
@@ -20,6 +22,10 @@ password:{
      type:String,
     unique:true,
     require:true
+},
+verified:{
+    type:Boolean,
+    default:false
 }
 
 })
