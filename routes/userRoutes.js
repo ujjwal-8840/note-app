@@ -2,36 +2,40 @@ require('dotenv').config()
 const express = require('express')
 const router = express.Router()
 const User = require('../models/user');
+const Otp = require('../models/otp')
 const bcrypt = require('bcrypt')
 const { jwtAuthMiddleware,generateToken } = require('../jwt');
 const signup = require('../validations/userValidation');
 // const valdidateMiddleware = require('../validations/valdidateMiddleware');
 const validate = require('../validations/valdidateMiddleware')
 const jwt = require('jsonwebtoken');
+const mailer = require('nodemailer');
+const { sanitizeFilter } = require('mongoose');
+const otp = require('../models/otp');
 
 
-router.post('/signup',validate(signup),async(req,res)=>{
-    try{
-    const data = req.body
-    console.log(data)
-const Newuser = new User(data)
-const response = await Newuser.save()
-console.log('Data created',response)
-const payload = {
-    id:response._id,
-    email:response.email,
-    role:response.role
-}
-console.log(JSON.stringify(payload))
-const token = generateToken(payload)
-console.log('token is generated',token)
-res.status(200).json({resposne:response,token:token})
+// router.post('/signup',validate(signup),async(req,res)=>{
+//     try{
+//     const data = req.body
+//     console.log(data)
+// const Newuser = new User(data)
+// const response = await Newuser.save()
+// console.log('Data created',response)
+// const payload = {
+//     id:response._id,
+//     email:response.email,
+//     role:response.role
+// }
+// console.log(JSON.stringify(payload))
+// const token = generateToken(payload)
+// console.log('token is generated',token)
+// res.status(200).json({resposne:response,token:token})
 
-    }catch(err){
-        console.log('somethimg went error',err)
-        res.status(500).json({message:'internal server error',error:err})
-    }
-});
+//     }catch(err){
+//         console.log('somethimg went error',err)
+//         res.status(500).json({message:'internal server error',error:err})
+//     }
+// });
 router.post('/login',async (req,res)=>{
     const {email,password} = req.body;
     if(!email||!password)
@@ -119,5 +123,87 @@ res.status(200).json({message:'data deleted',response})
         res.status(500).json({message:'internal server error',error})
     }
 })
+const transport = mailer.createTransport({
+    service:"gmail",
+    auth:{
+        user:process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+    }
+})
+router.post('/signup-otp',validate(signup), async(req,res)=>{
+    try{
+    const {username,email,password,role} = req.body
+    const existUser = await User.findOne({email})
+    console.log(existUser)
+    if(existUser) return res.status(400).json({message:"user already exist"});
+    const generateOtp = Math.floor(100000 + Math.random()*900000).toString()
+    const otpDoc = new Otp({
+        username,
+        email,
+        role,
+        password,
+        oneTimePassword:generateOtp,
+        expiresAt:Date.now()+5*60*1000
 
+    })
+    
+const  saveOtp =await otpDoc.save()
+console.log(saveOtp)
+//send otp via email//
+const sendMail = async(to,subject,message)=>{
+   return await transport.sendMail({
+    from:`"Nodemailer"<${process.env.Email_user}>`,
+    to ,
+    subject,
+    html:message
+   })
+};
+const mailResponse =await sendMail(
+email,
+"your otp code is",
+`<h2>Hello uprant</h2><p>your otp is <b>${generateOtp}</b>and it will expire in 5 minutes</p>`
+)
+res.status(200).json({message:"send otp successfully",data:mailResponse})
+}catch(error){
+    console.log("something went wrong" ,error)
+    res.status(500).json({message:"internal server error",err:error})
+}
+});
+router.post('/verify-otp',async(req,res)=>{
+    try{
+    const {email,otp} = req.body
+    console.log(email,otp,req.body)
+    if(!email||!otp)return res.status(400).json({message:"email and otp not found"})
+    const otpDoc =await Otp.findOne({email})
+    console.log(otpDoc)
+    if(!otpDoc) return res.status(400).json({message:"otp not found"})
+        if(otpDoc.oneTimePassword != otp.toString().trim())return res.status(401).json({message:"invalid otp"})
+            console.log(otpDoc.oneTimePassword)
+            if(otpDoc.expiresAt < Date.now()) return res.status(404).json({message:"your otp has been expired"})
+
+                const newUser = new User({
+                    username:otpDoc.username,
+                    email:otpDoc.email,
+                    role:otpDoc.role,
+                    password:otpDoc.password,
+                    verified:true
+                })
+                const savedUser= await newUser.save()
+                console.log(savedUser)
+                 const payload = {
+    id:savedUser._id,
+    email:savedUser.email,
+    role:savedUser.role
+}
+console.log(JSON.stringify(payload))
+const token = generateToken(payload)
+console.log('token is generated',token)
+const deleteOtp = await Otp.deleteOne({email})
+console.log(deleteOtp)
+res.status(200).json({message:"user ragistered successfully",data:savedUser,token})
+    }catch(error){
+        console.log('something went wrong', error)
+        res.status(500).json({message:"internal server error",err:error})
+    }
+});
 module.exports = router
