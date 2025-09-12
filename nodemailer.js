@@ -9,7 +9,7 @@ const transport = mailer.createTransport({
 })
 const sendMail = async(to,subject,message)=>{
    return transport.sendMail({
-    from:`"chal hat"<${process.env.Email_user}>`,
+    from:`"Nodemailer"<${process.env.Email_user}>`,
     to ,
     subject,
     html:message
