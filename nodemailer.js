@@ -1,3 +1,4 @@
+require('dotenv').config()
 const mailer = require("nodemailer")
 
 const transport = mailer.createTransport({

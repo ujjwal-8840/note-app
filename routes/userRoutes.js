@@ -10,8 +10,7 @@ const signup = require('../validations/userValidation');
 const validate = require('../validations/valdidateMiddleware')
 const jwt = require('jsonwebtoken');
 const mailer = require('nodemailer');
-const { sanitizeFilter } = require('mongoose');
-const otp = require('../models/otp');
+
 
 
 // router.post('/signup',validate(signup),async(req,res)=>{
@@ -37,14 +36,18 @@ const otp = require('../models/otp');
 //     }
 // });
 router.post('/login',async (req,res)=>{
-    const {email,password} = req.body;
-    if(!email||!password)
-        return res.status(400).json({message:'Email and password required'})
+    try{
+    const {email,password} = req.body
+    if(!email||!password){
+        console.log('email or password are required')
+        return res.status(400).json({message:'Email and password required'})}
     const user = await User.findOne({email})
-    if(!user)
+    if(!user){
+        console.log("user not found")
         return res.status(401).json({message:'user not found'})
+}
 
-    const isPasswordCorrect = await bcrypt.compare(password,user.password)
+    const isPasswordCorrect = bcrypt.compare(password,user.password)
     if(!isPasswordCorrect)
         return res.status(401).json({message:'password is incorrect'})
     const token  = jwt.sign({
@@ -52,14 +55,19 @@ router.post('/login',async (req,res)=>{
         process.env.JWT_SECRET,
         {expiresIn:'7d'}
 
-    )
+      )
     console.log(user,'login successfully')
     res.status(200).json({message:'login successfully',
         user:user,
         token:token,
         
     })
+    }catch(error){
+        console.log('something went wrong',error)
+        res.status(500).json({message:'Internal server error',err:error})
+    }
 })
+
           
 router.get('/',jwtAuthMiddleware,async (req,res)=>{
     try{
@@ -206,4 +214,61 @@ res.status(200).json({message:"user ragistered successfully",data:savedUser,toke
         res.status(500).json({message:"internal server error",err:error})
     }
 });
+router.post('/forget-password',async(req,res)=>{
+    try{
+    const {email} = req.body
+    console.log({email})
+    const response =await Otp.findOne({email})
+    console.log(response)
+    const otpGenerate = Math.floor(100000 + Math.random()*900000).toString();
+    console.log(otpGenerate)
+    if(!otpGenerate) return res.status(404).json({message:'otp is not found'})
+        const otpDoc = await Otp.findOneAndUpdate(
+    {email},
+    {oneTimePassword:otpGenerate,expiresAt:Date.now() + 5*60*1000 },
+    {upsert:true})
+        const sendMail = async(to,subject,message)=>{
+   return await transport.sendMail({
+    from:`"Nodemailer"<${process.env.Email_user}>`,
+    to ,
+    subject,
+    html:message
+   })
+};
+const mailResponse =await sendMail(
+email,
+"your otp code is",
+`<h2>Hello uprant</h2><p> This is reset password your otp is <b>${otpGenerate}</b>and it will expire in 5 minutes</p>`
+)
+console.log(mailResponse)
+res.status(200).json({message:"otp is sent on your email"})
+    }catch(error){
+        console.log('something went wrong',error)
+        res.status(500).json({message:"internal server error",err:error})
+    }
+})
+router.post('/verify-forget-password',async(req,res)=>{
+    try{
+        const {email,otp,newPassword} = req.body
+    console.log(email,otp,req.body)
+    if(!email||!otp||!newPassword)return res.status(400).json({message:"email and otp and new password not found"})
+    const otpDoc =await Otp.findOne({email})
+    console.log(otpDoc)
+    if(!otpDoc) return res.status(400).json({message:"otp not found"})
+        if(otpDoc.oneTimePassword != otp.toString().trim())return res.status(401).json({message:"invalid otp"})
+            console.log(otpDoc.oneTimePassword)
+            if(otpDoc.expiresAt < Date.now()) return res.status(404).json({message:"your otp has been expired"})
+                const updatePassword =await User.findOne({email})
+            console.log(updatePassword)
+            if(!updatePassword) res.status(404).json({message:'user not found'})
+                updatePassword.password = newPassword
+                const updatedPassword =await updatePassword.save()
+            await otpDoc.deleteOne()
+                res.status(200).json({message:'password updated successfully'})
+    }catch(error){
+        console.log('Something went wrong',error)
+        res.status(500).json({message:"Internal server error",err:error})
+    }
+})
+
 module.exports = router

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Form</title>
+
+  <style>
+ 
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, white,black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ===== Container ===== */
+    .container {
+      background: #ffffff;
+      padding: 40px 35px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      width: 350px;
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 25px;
+      letter-spacing: 1px;
+    }
+
+    /* ===== Input Fields ===== */
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: #6a11cb;
+      box-shadow: 0 0 5px rgba(106, 17, 203, 0.3);
+    }
+
+    /* ===== Button ===== */
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #5b0db3, #1d63e2);
+    }
+    #message {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #e74c3c;
+      font-weight: 500;
+    }
+    #signup{
+        color: #1d63e2;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #forgetPassword{
+      text-align: left;
+       color: #1d63e2;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Login Form</h2>
+
+    <input type="email" id="email" placeholder="Enter email">
+    <input type="password" id="password" placeholder="Enter password">
+        <p onclick="forgetPassword()" id="forgetPassword">Forget password</p>
+<br>
+    <button onclick="login()">Login</button>
+    <p id="message"></p>
+    <p onclick="newUser()" id="signup">New user?</p>
+  </div>
+</body>
+<script>
+   function showMessage(mesg,color){
+      const message = document.getElementById('message')
+      message.textContent = mesg
+      message.style.color = color
+    }
+  async function login(){
+    const emailInput = document.getElementById('email').value.trim()
+    console.log(emailInput)
+    const passwordInput = document.getElementById('password').value.trim()
+    console.log(passwordInput)
+    if(!emailInput||!passwordInput){
+      console.log('please fill al the fields')
+      return showMessage('please fill email and password')
+    }
+    try{
+   const response =await fetch('http://localhost:5000/user/login',{
+    method:'POST',
+    headers:{
+      'Content-Type': 'application/json'
+    },
+    body:JSON.stringify({
+       email:emailInput,
+       password: passwordInput
+    })
+   })
+   console.log(emailInput,passwordInput)
+
+   const res = await response.json()
+   if(response.ok){
+    console.log('you have login successfully',response)
+    return showMessage(res.message||'you have login succesfully','green')
+   }else{
+    console.log('invalid password and email')
+    return showMessage(res.message||'invalid email and pasword','red')
+   }
+    }catch(error){
+      console.log('server error', error)
+      return showMessage('internal server error' ,'red')
+    }
+  }
+    function newUser(){
+        window.location.href = 'signup.html'    
+        }
+</script>
+</html>
