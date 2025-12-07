@@ -30,22 +30,22 @@ expiresAt:{
     require:true
 }
 });
-otpSchema.pre('save',async function(next){
-    const otp = this
-    if(!otp.isModified('password')) return next()
-        try{
-    //Generate hashed password
-    const salt = await bcrypt.genSalt(10)
-    // Hashed paswword //
-    const hashPassword = await bcrypt.hash(otp.password,salt)
- otp.password = hashPassword
-    next()
-    }catch(error){
-        next(error)
-    }
-})
-otpSchema.methods.comparePassword = function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
+// otpSchema.pre('save',async function(next){
+//     const otp = this
+//     if(!otp.isModified('password')) return next()
+//         try{
+//     //Generate hashed password
+//     const salt = await bcrypt.genSalt(10)
+//     // Hashed paswword //
+//     const hashPassword = await bcrypt.hash(otp.password,salt)
+//  otp.password = hashPassword
+//     next()
+//     }catch(error){
+//         next(error)
+//     }
+// })
+// otpSchema.methods.comparePassword = function (candidatePassword) {
+//   return bcrypt.compare(candidatePassword, this.password);
+// };
 const otp = mongoose.model('otp',otpSchema)
 module.exports = otp
