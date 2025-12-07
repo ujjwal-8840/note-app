@@ -10,48 +10,29 @@ const signup = require('../validations/userValidation');
 const validate = require('../validations/valdidateMiddleware')
 const jwt = require('jsonwebtoken');
 const mailer = require('nodemailer');
+const { update } = require('lodash');
 
-
-
-// router.post('/signup',validate(signup),async(req,res)=>{
-//     try{
-//     const data = req.body
-//     console.log(data)
-// const Newuser = new User(data)
-// const response = await Newuser.save()
-// console.log('Data created',response)
-// const payload = {
-//     id:response._id,
-//     email:response.email,
-//     role:response.role
-// }
-// console.log(JSON.stringify(payload))
-// const token = generateToken(payload)
-// console.log('token is generated',token)
-// res.status(200).json({resposne:response,token:token})
-
-//     }catch(err){
-//         console.log('somethimg went error',err)
-//         res.status(500).json({message:'internal server error',error:err})
-//     }
-// });
 router.post('/login',async (req,res)=>{
     try{
     const {email,password} = req.body
     if(!email||!password){
         console.log('email or password are required')
         return res.status(400).json({message:'Email and password required'})}
-    const user = await User.findOne({email})
+    const user = await User.findOne({email}).select('+password')
     if(!user){
         console.log("user not found")
         return res.status(401).json({message:'user not found'})
 }
 
-    const isPasswordCorrect = bcrypt.compare(password,user.password)
-    if(!isPasswordCorrect)
+    const isPasswordCorrect =await bcrypt.compare(password,user.password)
+    console.log(password)
+    console.log(user.password)
+    console.log(isPasswordCorrect)
+    if(!isPasswordCorrect){
         return res.status(401).json({message:'password is incorrect'})
-    const token  = jwt.sign({
-        userId:user._id},
+    }
+    const token  = jwt.sign(
+        {userId:user._id},
         process.env.JWT_SECRET,
         {expiresIn:'7d'}
 
@@ -85,23 +66,40 @@ router.get('/',jwtAuthMiddleware,async (req,res)=>{
         res.status(500).json({message:'internal server error',error})
     }
 });
-router.get('/profile/:id',async (req,res)=>{
-    try{
-    const data = req.params.id
-    if(!data)
-          return res.status(404).json({message:'user is not found'})
+// router.get('/profile/:id',async (req,res)=>{
+//     try{
+//     const data = req.params.id
+//     if(!data)
+//           return res.status(404).json({message:'user is not found'})
         
-    const findUser = await User.findOne({_id:data})
-    console.log('profile fetched',findUser)
-    res.status(200).json({message:'profile fetched',username:findUser.username})
-    }catch(err){
-        console.log('something went wrong',err)
-        res.status(500).json({message:"Internal server error",error:err})
-    }
+//     const findUser = await User.findOne({_id:data})
+//     console.log('profile fetched',findUser)
+//     res.status(200).json({message:'profile fetched',username:findUser.username})
+//     }catch(err){
+//         console.log('something went wrong',err)
+//         res.status(500).json({message:"Internal server error",error:err})
+//     }
+// })
+router.get('/profile/personal',jwtAuthMiddleware, async (req,res)=>{
+try{
+const userId = req.user.userId
+console.log('user id from token',userId)
+const user =await User.findById(userId).select('-password')
+if(!user){
+    console.log('user not found')
+    return res.status(404).json({message:'user not found'})
+}
+res.status(200).json({message:'profile feched',user})
+
+}catch(error){
+    console.log('internal something went wrong',error)
+    res.status(500).json({message:'internal server error'})
+}
 })
-router.put('/:id',jwtAuthMiddleware,async (req,res)=>{
+router.put('/',jwtAuthMiddleware,async (req,res)=>{
     try{
-  const updateNote = req.params.id
+  const updateNote = req.user.userId
+  console.log(updateNote)
   const updateNoteData = req.body
   const response = await User.findByIdAndUpdate(updateNote,updateNoteData ,{
     new:true,
@@ -117,9 +115,9 @@ router.put('/:id',jwtAuthMiddleware,async (req,res)=>{
         res.status(500).json({message:'internal server error',error:err})
     }
 });
-router.delete('/:id',jwtAuthMiddleware, async (req,res)=>{
+router.delete('/',jwtAuthMiddleware, async (req,res)=>{
     try{
-const noteDelete = req.params.id
+const noteDelete = req.user.userId
 const response = await User.findByIdAndDelete(noteDelete)
 if(!response){
     return res.status(404).json({message:'user not found'})
@@ -140,7 +138,7 @@ const transport = mailer.createTransport({
 })
 router.post('/signup-otp',validate(signup), async(req,res)=>{
     try{
-    const {username,email,password,role} = req.body
+    const {username,email,password,role} = req.body 
     const existUser = await User.findOne({email})
     console.log(existUser)
     if(existUser) return res.status(400).json({message:"user already exist"});
@@ -218,11 +216,15 @@ router.post('/forget-password',async(req,res)=>{
     try{
     const {email} = req.body
     console.log({email})
+    const user =await User.findOne({email})
+    console.log(user)
+    if(!user) return res.status(404).json({message:'email not ragistered yet'})
     const response =await Otp.findOne({email})
     console.log(response)
     const otpGenerate = Math.floor(100000 + Math.random()*900000).toString();
     console.log(otpGenerate)
     if(!otpGenerate) return res.status(404).json({message:'otp is not found'})
+
         const otpDoc = await Otp.findOneAndUpdate(
     {email},
     {oneTimePassword:otpGenerate,expiresAt:Date.now() + 5*60*1000 },
