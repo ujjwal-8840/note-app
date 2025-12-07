@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forget Password</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg,black, rgb(2, 189, 148));
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      width: 300px;
+      text-align: center;
+    }
+
+    .container h2 {
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    button {
+      width: 95%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: rgb(194, 14, 44);
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      background-color: rgb(2, 189, 148)
+    }
+
+    #message {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+   
+    #otpContainer {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Forget Password</h2>
+    <input type="text" id="email" placeholder="Enter email" >
+    <button onclick="sendOtp()" id="sendOtp">Send OTP</button>
+    <div id="otpContainer">
+      <input type="text" id="otp" placeholder="Enter your OTP" />
+      <input type="text" id="newPasd" placeholder="Enter new password" />
+      <button onclick="updatePassword()" id="updatePasd">Update Password</button>
+    </div>
+
+    <p id="message"></p>
+  </div>
+
+  <script>
+    
+   function showMessage(mesg,color){
+      const message = document.getElementById('message')
+      message.textContent = mesg
+      message.style.color = color
+    }
+    async function sendOtp(){
+        const emailInput = document.getElementById('email').value.trim()
+        console.log(emailInput)
+        if(!emailInput){
+            return showMessage('please enter your email')
+        }
+        try{
+        const response =await fetch("http://localhost:5000/user/forget-password",{
+             method:'POST',
+headers:{
+  "Content-Type" : "application/json"
+},
+body: JSON.stringify({
+   email : emailInput
+   
+})
+        })
+        
+        const res = await response.json()
+        if(response.ok){
+            console.log('send otp successfully')
+            showMessage(res.message||'otp send succesfully','green')
+            document.getElementById('otpContainer').style.display ='block'
+        }else{
+            console.log('invalid email')
+            return showMessage(res.message||'invalid email','red')
+        }
+    }catch(error){
+        console.log('Internal server error',error)
+        return showMessage(error||'internal server error','red')
+    }
+        }
+
+       async function updatePassword(){
+        const emailInput = document.getElementById('email').value.trim()
+        console.log(emailInput)
+         const otpInput = document.getElementById('otp').value.trim()
+        console.log(otpInput)
+         const passwordInput = document.getElementById('newPasd').value.trim()
+        console.log(passwordInput)
+        if(!otpInput){
+          console.log('please enter OTP')
+          showMessage('please enter OTP','red')
+        }else if(!passwordInput){
+          console.log('please enter new password')
+          showMessage('please enter new password','red')
+        }
+        try{
+          const response =await fetch('http://localhost:5000/user/verify-forget-password',{
+             method:'POST',
+headers:{
+  "Content-Type" : "application/json"
+},
+body: JSON.stringify({
+   email : emailInput,
+   otp:otpInput,
+   newPassword:passwordInput
+   
+})
+          })
+          const res = await response.json()
+          if(response.ok){
+            console.log('password update successfully',res)
+            showMessage(res.message|| 'password update succesfully','green')
+          }else{
+            console.log('something went wrong')
+            showMessage(res.message)
+          }
+
+        }catch(error){
+          console.log('Internal server error',error)
+          showMessage(error||'Internal server error','red')
+        }
+      
+       }
+  </script>
+</body>
+</html>

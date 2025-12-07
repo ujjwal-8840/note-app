@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #4b79a1, #283e51);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #updateContainer {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 20px rgba(0,0,0,0.2);
+            width: 300px;
+            text-align: center;
+        }
+
+        #update,#email {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #4b79a1;
+            outline: none;
+            font-size: 16px;
+            transition: 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        #update,#email:focus {
+            border-color: #283e51;
+            box-shadow: 0 0 8px rgba(75, 121, 161, 0.5);
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #4b79a1;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            background: #283e51;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="updateContainer">
+        <input type="text" id="update" placeholder="Enter new username">
+       <p id="message" style="width:500px; padding-left:200px;"></p>
+        <button onclick="update()">Update</button>
+    </div>
+
+    <script>
+              function showMessage(mesg,color){
+      const message = document.getElementById('message')
+      message.textContent = mesg
+      message.style.color = color
+    }
+
+
+
+        //  const updateBlock = document.getElementById('update').value 
+        // console.log(updateBlock)
+    async function update(){
+         const updateBlock = document.getElementById('update').value 
+        console.log(updateBlock)
+      try{
+    const token  = localStorage.getItem('token')
+    if(!token){
+      console.log('not found token')
+      showMessage('token not found','red')
+    }else{
+      console.log('token found')
+    }
+ const response = await fetch("http://localhost:5000/user",{
+    method:'PUT',
+    headers:{
+  "Content-Type" : "application/json",
+ 'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({
+    username:updateBlock
+    
+    
+})
+  })
+  const res =await  response.json()
+  if(response.ok){
+    console.log('profile updated',res)
+    showMessage(res.message||'your profile is updated','green') 
+  }
+    }catch(error){
+console.log('something went wrong',error)
+showMessage( res.mesage||'internal server error','red')
+    }
+    document.getElementById('update').value = ""
+    document.getElementById('email').value = ""
+  }
+</script>
+
+
+
+</body>
+</html>
+

@@ -16,7 +16,7 @@
     body {
       height: 100vh;
       font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, white,black);
+      background: linear-gradient(135deg, white,beige);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -150,12 +150,21 @@
    console.log(emailInput,passwordInput)
 
    const res = await response.json()
-   if(response.ok){
-    console.log('you have login successfully',response)
-    return showMessage(res.message||'you have login succesfully','green')
+   if(!response.ok){
+    console.log('login failed',response)
+    return showMessage(res.message||'enter valid email or password','red')
+   }
+   if(res.token){
+     localStorage.setItem("token", res.token);
+            console.log('Token successfully saved:', res.token)
+            showMessage('token is received','green')
+            setTimeout(()=>{
+                  window.location.href = 'dashborad.html';
+            },1000)
+                
    }else{
-    console.log('invalid password and email')
-    return showMessage(res.message||'invalid email and pasword','red')
+   console.log('login succesfully but no token received')
+    showMessage('Login successfully but token not received','red')
    }
     }catch(error){
       console.log('server error', error)
@@ -165,5 +174,9 @@
     function newUser(){
         window.location.href = 'signup.html'    
         }
+        function forgetPassword(){
+          window.location.href = 'forgetpasd.html'
+        }
+          
 </script>
 </html>

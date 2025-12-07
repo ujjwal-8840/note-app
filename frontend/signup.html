@@ -192,12 +192,14 @@ const res = await response.json()
 if(response.ok){
   console.log('you signup successfully')
  return showMessage(res.message||'you signup succesfully','green')
+ clearForm()
 
 }else{
   console.log('invalid otp or email')
  return showMessage(res.message||'invalid otp and email','red')
   
 }
+clearForm()
 }catch(error){
 console.log('server error',error)
 return showMessage('internal server error','red')
