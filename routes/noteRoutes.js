@@ -63,7 +63,7 @@ res.status(200).json({message:'success',response:response})
 
     });
 
-    router.put('/update/:id', async (req,res)=>{
+    router.put('/update/:id',jwtAuthMiddleware, async (req,res)=>{
       try
       {
         const currentNotes = req.params.id
@@ -79,7 +79,7 @@ console.log('notes are not updated',err)
 res.status(500).json({message:'inetrnal server error',error:err})
 }
     });
-    router.delete('/Delete/:id',async(req,res)=>{
+    router.delete('/Delete/:id',jwtAuthMiddleware,async(req,res)=>{
       try{
         const deleteData = req.params.id
           const deletedNotes = await Note.findByIdAndDelete(deleteData)
@@ -93,16 +93,23 @@ res.status(500).json({message:'inetrnal server error',error:err})
       }
     });
 
-// Integrate google gemini ai with our project //
 
 
     router.post('/ai', async(req,res)=>{
       try{
       const {prompt} = req.body
+      const summary = `summarize the toipc ${prompt} in 
+      Rules:
+    in just 20 lines
+    begginer friendly
+    important topics
+    only core meanings
+    2 examples
+      `
       if(!prompt)
         return res.status(401).json({message:"prompt is required"})
-      const result = await geminiModel.generateContent(prompt)
-      const response =await  result.response
+      const result = await geminiModel.generateContent(summary)
+      const response = result.response
       const text = response.text()
       console.log(text);
       res.status(200).json({message:"notes created",data:text})
