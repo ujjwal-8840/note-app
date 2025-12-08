@@ -155,7 +155,7 @@
     return showMessage(res.message||'enter valid email or password','red')
    }
    if(res.token){
-     localStorage.setItem("token", res.token);
+     localStorage.setItem("token",res.token);
             console.log('Token successfully saved:', res.token)
             showMessage('token is received','green')
             setTimeout(()=>{
@@ -177,6 +177,7 @@
         function forgetPassword(){
           window.location.href = 'forgetpasd.html'
         }
+        
           
 </script>
 </html>
