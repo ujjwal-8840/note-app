@@ -169,7 +169,7 @@ email,
 "your otp code is",
 `<h2>Hello uprant</h2><p>your otp is <b>${generateOtp}</b>and it will expire in 5 minutes</p>`
 )
-res.status(200).json({message:"send otp successfully",data:mailResponse})
+res.status(200).json({message:"otp sent on ragistered email",data:mailResponse})
 }catch(error){
     console.log("something went wrong" ,error)
     res.status(500).json({message:"internal server error",err:error})
