@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Chatbot Interface</title>
+    <script src="config.js"></script>
     <style>
         /* Reset & body style */
         * {
@@ -147,7 +148,7 @@ function addMessage(text, sender) {
         try{
         const prompt = document.getElementById('aiContainer').value.trim()
          console.log(prompt)
-         const response = await fetch('http://localhost:5000/note/ai',{
+         const response = await fetch(`${CONFIG.API_URL}/note/ai`,{
             method:'POST',
     headers:{
   "Content-Type" : "application/json",
@@ -168,6 +169,8 @@ function addMessage(text, sender) {
     console.log('something went wrong',error)
     showMessage(error.message||'internal server error','red')
 }
+document.getElementById('aiContainer').value = "";
+
 
              }
        
