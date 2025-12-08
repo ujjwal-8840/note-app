@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Notes Dashboard</title>
+  <script src="config.js"></script>
   <style>
     * {
   margin: 0;
@@ -338,7 +339,7 @@ if(!token) {
   showMessage('token not provide', 'red')
 }
 try{
- const response =await fetch('http://localhost:5000/user',{
+ const response =await fetch(`${CONFIG.API_URL}/user`,{
      method:'DELETE',
 headers:{
   "Content-Type" : "application/json",
@@ -385,7 +386,7 @@ showMessage('internal server error',error.message)
         showMessage("you have not login yet",'red')
       }
       try{
-      const response =await fetch('http://localhost:5000/note',{
+      const response =await fetch(`${CONFIG.API_URL}/note`,{
      method:'POST',
 headers:{
   "Content-Type" : "application/json",
@@ -420,7 +421,7 @@ async function allNotes(){
       console.log('token not received')
       showMessag('token not received','red')
     }
-  const response = await fetch('http://localhost:5000/note',{
+  const response = await fetch(`${CONFIG.API_URL}/note`,{
      method:'GET',
 headers:{
   "Content-Type" : "application/json",
@@ -455,7 +456,7 @@ if(!token){
   console.log('token not found')
   showMessage('notes not found','red')
 }
-  const response = await fetch('http://localhost:5000/user/profile/personal',{
+  const response = await fetch(`${CONFIG.API_URL}user/profile/personal`,{
     method:'GET',
     headers:{
   "Content-Type" : "application/json",
@@ -534,7 +535,7 @@ function displayNotes(notes){
         }else if(!token){
           console.log('token not provide')
         }
-      const response = await fetch(`http://localhost:5000/note/search?query=${query}`,{
+      const response = await fetch(`${CONFIG.API_URL}note/search?query=${query}`,{
     method:'GET',
     headers:{
   "Content-Type" : "application/json",
@@ -562,7 +563,7 @@ showMessage(error.message||'internal server error','red')
            if(!token){
             console.log("token not provide")
            }
-       const response = await fetch(`http://localhost:5000/note/update/${noteId}`,{
+       const response = await fetch(`${CONFIG.API_URL}note/update/${noteId}`,{
     method:'PUT',
     headers:{
   "Content-Type" : "application/json",
