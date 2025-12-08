@@ -28,6 +28,12 @@ const noteRoutes = require('./routes/noteRoutes')
 app.use('/note',noteRoutes)
 const userRoutes = require('./routes/userRoutes')
 app.use('/user',userRoutes)
+const apiUrl = process.env.API_URL
+
+app.get('/test', (req, res) => {
+    res.send(`Backend URL is ${apiUrl}`);
+});
+
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT,()=>{
