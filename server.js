@@ -9,14 +9,12 @@ const Ratelimiter =require('./ratelimiter')
 const helmet = require("helmet")
 const path = require("path")
 const cors = require('cors')
-const frontend = path.join(__dirname, "frontend");
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(Ratelimiter())
 app.use(helmet())
 app.use(express.json())
 app.use(cors())
-app.use(express.static(path.join(frontend)));
 
 
 app.use(bodyParser.json())
@@ -30,10 +28,6 @@ const noteRoutes = require('./routes/noteRoutes')
 app.use('/note',noteRoutes)
 const userRoutes = require('./routes/userRoutes')
 app.use('/user',userRoutes)
-
-app.get((req, res) => {
-  res.sendFile(path.join(frontend, "login.html"));
-});
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT,()=>{
