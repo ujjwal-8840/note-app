@@ -191,6 +191,7 @@ body: JSON.stringify({
 const res = await response.json()
 if(response.ok){
   console.log('you signup successfully')
+  localStorage.setItem('username',res.data.username)
  return showMessage(res.message||'you signup succesfully','green')
  clearForm()
 
