@@ -31,5 +31,5 @@ app.use('/user',userRoutes)
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT,()=>{
-    console.log(`server running on this http//localhost:${PORT}`)
+    console.log("server is connected successfully")
 })
