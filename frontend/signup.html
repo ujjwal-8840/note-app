@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Signup with OTP</title>
-  <script src="frontend/config.js"></script>
+  <script src="config.js"></script>
   <style>
     /* 🎨 Reset and base styling */
     * {
@@ -117,6 +117,7 @@
   </div>
 
   <script>
+    const url = CONFIG
     function showMessage(mesg,color){
       const message = document.getElementById('message')
       message.textContent = mesg
@@ -133,7 +134,7 @@ let userInput = document.getElementById("username").value.trim()
   return showMessage('please fill all the fields', 'red')
  }
  try{
-const response =await  fetch(`${CONFIG.API_URL}/user/signup-otp`,{
+const response =await  fetch(`${url}/user/signup-otp`,{
   method:'POST',
 headers:{
   "Content-Type" : "application/json"
@@ -178,7 +179,7 @@ console.log(emailInput)
 const otpInput = document.getElementById('otp').value.trim()
 console.log(otpInput)
 try{
-const response =await fetch(`${CONFIG.API_URL}/user/verify-otp`,{
+const response =await fetch(`${url}/user/verify-otp`,{
    method:'POST',
 headers:{
   "Content-Type" : "application/json"
