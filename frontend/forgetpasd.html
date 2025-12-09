@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Forget Password</title>
+  <script src="config.js"></script>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -83,7 +84,7 @@
   </div>
 
   <script>
-    
+    let url = CONFIG
    function showMessage(mesg,color){
       const message = document.getElementById('message')
       message.textContent = mesg
@@ -96,7 +97,7 @@
             return showMessage('please enter your email')
         }
         try{
-        const response =await fetch("http://localhost:5000/user/forget-password",{
+        const response =await fetch(`${url}/user/forget-password`,{
              method:'POST',
 headers:{
   "Content-Type" : "application/json"
@@ -137,7 +138,7 @@ body: JSON.stringify({
           showMessage('please enter new password','red')
         }
         try{
-          const response =await fetch('http://localhost:5000/user/verify-forget-password',{
+          const response =await fetch(`${url}/user/verify-forget-password`,{
              method:'POST',
 headers:{
   "Content-Type" : "application/json"
