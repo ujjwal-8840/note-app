@@ -141,7 +141,7 @@ router.post('/signup-otp',validate(signup), async(req,res)=>{
     const {username,email,password,role} = req.body 
     const existUser = await User.findOne({email})
     console.log(existUser)
-    if(existUser) return res.status(400).json({message:"user already exist"});
+    if(!existUser) return res.status(400).json({message:"user already exist"});
     const generateOtp = Math.floor(100000 + Math.random()*900000).toString()
     const otpDoc = new Otp({
         username,
