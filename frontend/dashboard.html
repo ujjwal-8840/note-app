@@ -230,8 +230,6 @@ border: 1px solid black;
   color: #10b981;
   text-align: right;
 }
-
-/* Smooth fade-in animation for new notes */
 @keyframes fadeInCard {
   from {
     opacity: 0;
@@ -331,7 +329,7 @@ border: 1px solid black;
   </ul>
 </body>
 <script>
-let url = CONFIG.API_URL
+let url = "https://note-app-hk6q.onrender.com"
 async function delAcc(){
   const token =  localStorage.getItem('token')
 if(!token) {
