@@ -1,6 +1,6 @@
 require('dotenv').config()
 const mongoose = require('mongoose')
- //const mongooseUrl = process.env.MONGO_LOCAL_URL
+// const mongooseUrl = process.env.MONGO_LOCAL_URL
  const mongooseAtlasUrl = process.env.MONGO_ATLAS_URL
 
  mongoose.connect(mongooseAtlasUrl,{
