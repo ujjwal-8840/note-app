@@ -26,7 +26,7 @@ password:{
 verified:{
     type:Boolean,
     default:false
-},
+}
 })
 userSchema.pre('save',async function(next){
     const user = this
