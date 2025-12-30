@@ -10,7 +10,6 @@ const signup = require('../validations/userValidation');
 const validate = require('../validations/valdidateMiddleware')
 const jwt = require('jsonwebtoken');
 const mailer = require('nodemailer');
-const client = require('twilio') (process.env.TWILIO_SID,process.env.TWILIO_AUTH_TOKEN);
 const { update } = require('lodash');
 
 router.post('/login',async (req,res)=>{
@@ -262,15 +261,6 @@ email,
 )
 console.log(mailResponse)
 res.status(200).json({message:"otp sent",data:savedUser,token})
-// const message = await client.messages.create({
-//             body: `Hello uprant, This is reset password your otp is ${otpGenerate}and it will expire in 5 minutes`,
-//             to: `+91${phone}`,  
-//             from: '+12182504384'
-//         });
-//         res.status(200).json({
-//             message: 'SMS sent successfully',
-//             sid: message.sid
-//         })
     }catch(error){
         console.log('something went wrong',error)
         res.status(500).json({message:"internal server error",err:error})
