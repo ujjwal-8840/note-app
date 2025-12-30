@@ -10,6 +10,7 @@ const signup = require('../validations/userValidation');
 const validate = require('../validations/valdidateMiddleware')
 const jwt = require('jsonwebtoken');
 const mailer = require('nodemailer');
+const client = require('twilio') (process.env.TWILIO_SID,process.env.TWILIO_AUTH_TOKEN);
 const { update } = require('lodash');
 
 router.post('/login',async (req,res)=>{
@@ -134,14 +135,18 @@ const transport = mailer.createTransport({
     auth:{
         user:process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
-    }
-})
+    }, 
+    pool: true,             
+    maxConnections: 5,      
+    rateDelta: 1000,         
+    rateLimit: 5 
+});
 router.post('/signup-otp',validate(signup), async(req,res)=>{
     try{
     const {username,email,password,role} = req.body 
-    const existUser = await User.findOne({email})
-    console.log(existUser)
-    if(existUser) return res.status(400).json({message:"user already exist"});
+    const oldUser = await User.findOne({email})
+    console.log(oldUser )
+    if(oldUser) return res.status(400).json({message:"user already exist"});
     const generateOtp = Math.floor(100000 + Math.random()*900000).toString()
     const otpDoc = new Otp({
         username,
@@ -155,7 +160,6 @@ router.post('/signup-otp',validate(signup), async(req,res)=>{
     
 const  saveOtp =await otpDoc.save()
 console.log(saveOtp)
-//send otp via email//
 const sendMail = async(to,subject,message)=>{
    return await transport.sendMail({
     from:`"Nodemailer"<${process.env.Email_user}>`,
@@ -170,6 +174,18 @@ email,
 `<h2>Hello uprant</h2><p>your otp is <b>${generateOtp}</b>and it will expire in 5 minutes</p>`
 )
 res.status(200).json({message:"otp sent on ragistered email",data:mailResponse})
+
+    // const message = await client.messages.create({
+    //         body: `Hello Dear, your otp is ${generateOtp} and it will expire in 5 minutes`,
+    //         to: `+91${phone}`,  
+    //         from: '+12182504384'
+    //     });
+    //     res.status(200).json({
+    //         message: 'SMS sent successfully',
+    //         sid: message.sid
+    //     })
+
+
 }catch(error){
     console.log("something went wrong" ,error)
     res.status(500).json({message:"internal server error",err:error})
@@ -212,6 +228,8 @@ res.status(200).json({message:"user ragistered successfully",data:savedUser,toke
         res.status(500).json({message:"internal server error",err:error})
     }
 });
+
+
 router.post('/forget-password',async(req,res)=>{
     try{
     const {email} = req.body
@@ -231,7 +249,7 @@ router.post('/forget-password',async(req,res)=>{
     {upsert:true})
         const sendMail = async(to,subject,message)=>{
    return await transport.sendMail({
-    from:`"Nodemailer"<${process.env.Email_user}>`,
+    from:`Nodemailer <${process.env.Email_user}>`,
     to ,
     subject,
     html:message
@@ -243,7 +261,16 @@ email,
 `<h2>Hello uprant</h2><p> This is reset password your otp is <b>${otpGenerate}</b>and it will expire in 5 minutes</p>`
 )
 console.log(mailResponse)
-res.status(200).json({message:"otp is sent on your email"})
+res.status(200).json({message:"otp sent",data:savedUser,token})
+// const message = await client.messages.create({
+//             body: `Hello uprant, This is reset password your otp is ${otpGenerate}and it will expire in 5 minutes`,
+//             to: `+91${phone}`,  
+//             from: '+12182504384'
+//         });
+//         res.status(200).json({
+//             message: 'SMS sent successfully',
+//             sid: message.sid
+//         })
     }catch(error){
         console.log('something went wrong',error)
         res.status(500).json({message:"internal server error",err:error})
@@ -252,7 +279,7 @@ res.status(200).json({message:"otp is sent on your email"})
 router.post('/verify-forget-password',async(req,res)=>{
     try{
         const {email,otp,newPassword} = req.body
-    console.log(email,otp,req.body)
+    console.log(email,otp)
     if(!email||!otp||!newPassword)return res.status(400).json({message:"email and otp and new password not found"})
     const otpDoc =await Otp.findOne({email})
     console.log(otpDoc)
@@ -272,5 +299,7 @@ router.post('/verify-forget-password',async(req,res)=>{
         res.status(500).json({message:"Internal server error",err:error})
     }
 })
+
+
 
 module.exports = router
