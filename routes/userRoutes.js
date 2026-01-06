@@ -161,7 +161,7 @@ const  saveOtp =await otpDoc.save()
 console.log(saveOtp)
 const sendMail = async(to,subject,message)=>{
    return await transport.sendMail({
-    from:`"Nodemailer"<${process.env.Email_user}>`,
+    from:`"Nodemailer"<${process.env.EMAIL_USER}>`,
     to ,
     subject,
     html:message
@@ -174,17 +174,6 @@ email,
 )
 res.status(200).json({message:"otp sent on ragistered email",data:mailResponse})
 
-    // const message = await client.messages.create({
-    //         body: `Hello Dear, your otp is ${generateOtp} and it will expire in 5 minutes`,
-    //         to: `+91${phone}`,  
-    //         from: '+12182504384'
-    //     });
-    //     res.status(200).json({
-    //         message: 'SMS sent successfully',
-    //         sid: message.sid
-    //     })
-
-
 }catch(error){
     console.log("something went wrong" ,error)
     res.status(500).json({message:"internal server error",err:error})
@@ -194,6 +183,9 @@ router.post('/verify-otp',async(req,res)=>{
     try{
     const {email,otp} = req.body
     console.log(email,otp,req.body)
+        const oldUser = await User.findOne({email})
+    console.log(oldUser )
+    if(oldUser) return res.status(400).json({message:"user already exist"});
     if(!email||!otp)return res.status(400).json({message:"email and otp not found"})
     const otpDoc =await Otp.findOne({email})
     console.log(otpDoc)
