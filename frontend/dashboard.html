@@ -409,7 +409,7 @@ body: JSON.stringify({
   
     }catch(error){
       console.log('something went wrong',error)
-      showMessage(res.message||'internal server error','red')
+      showMessage('internal server error','red')
     }
     } 
 async function allNotes(){
