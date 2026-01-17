@@ -5,9 +5,10 @@ const { jwtAuthMiddleware } = require('../jwt');
 //const { message } = require('../validations/userValidation');//
  const {GoogleGenerativeAI} = require("@google/generative-ai")
     const googleAi = new GoogleGenerativeAI(process.env.API_KEY)
-    const geminiModel = googleAi.getGenerativeModel({model:"gemini-2.5-flash"})
+    const geminiModel = googleAi.getGenerativeModel({model:"gemini-2.5-flash"}) 
+    const upload = require('../multer.js')
 
-router.post('/',jwtAuthMiddleware,async(req,res)=>{
+router.post('/',jwtAuthMiddleware,upload.single('image'),async(req,res)=>{
     try{
        
     const data = req.body
@@ -15,6 +16,7 @@ const newNote = new Note({
 title:data.title,
 content:data.content,
 author:data.author,
+file:req.file? req.fileName:null,
 createdAt:Date.now(),
 updatedAt:Date.now(),
 userId:req.user.id
@@ -58,9 +60,6 @@ res.status(200).json({message:'success',response:response})
         console.log('somethimg went wrong',error)
         res.status(500).json({message:'Internal server error',err:error})
     }
-       
-       
-
     });
 
     router.put('/update/:id',jwtAuthMiddleware, async (req,res)=>{
@@ -118,7 +117,6 @@ res.status(500).json({message:'inetrnal server error',error:err})
         res.status(500).json({message:"internal server error", err:error})
       }
     })
-    
 
 
     module.exports = router

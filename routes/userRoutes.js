@@ -135,12 +135,12 @@ const transport = mailer.createTransport({
         user:process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
     }
+    
 });
 router.post('/signup-otp',validate(signup), async(req,res)=>{
     try{
     const {username,email,password,role} = req.body 
     const oldUser = await User.findOne({email})
-    console.log(oldUser )
     if(oldUser) return res.status(400).json({message:"user already exist"});
     const generateOtp = Math.floor(100000 + Math.random()*900000).toString()
     const otpDoc = new Otp({
@@ -168,6 +168,7 @@ email,
 "your otp code is",
 `<h2>Hello uprant</h2><p>your otp is <b>${generateOtp}</b>and it will expire in 5 minutes</p>`
 )
+
 res.status(200).json({message:"otp sent on ragistered email",data:mailResponse})
 
 }catch(error){
@@ -209,7 +210,7 @@ const token = generateToken(payload)
 console.log('token is generated',token)
 const deleteOtp = await Otp.deleteOne({email})
 console.log(deleteOtp)
-res.status(200).json({message:"user ragistered successfully",data:savedUser,token})
+res.status(200).json({message:"user registered successfully",data:savedUser,token})
     }catch(error){
         console.log('something went wrong', error)
         res.status(500).json({message:"internal server error",err:error})

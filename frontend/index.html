@@ -133,7 +133,7 @@ let userInput = document.getElementById("username").value.trim()
   return showMessage('please fill all the fields', 'red')
  }
  try{
-const response =await  fetch(`${url}/user/signup-otp`,{
+const response = await  fetch(`${url}/user/signup-otp`,{
   method:'POST',
 headers:{
   "Content-Type" : "application/json"
@@ -206,6 +206,7 @@ return showMessage('internal server error','red')
   
 }
     }
+    
     function login(){
       window.location.href = 'login.html'
     }

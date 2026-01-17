@@ -1,5 +1,6 @@
 const mongoose= require('mongoose')
-const bcrypt =require('bcrypt')
+const bcrypt =require('bcrypt');
+const { string } = require('joi');
 const noteSchema = new mongoose.Schema({
 title:{
     type:String,
@@ -12,6 +13,10 @@ content:{
 author:{
     type:String,
     require:true
+},
+file:{
+type:String,
+default:null
 },
 createdAt:{
     type:Date,

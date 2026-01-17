@@ -99,11 +99,10 @@ body {
   background: #1d4ed8;
 }
 
-/* Notes Section */
 .notes-area {
   padding: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 20px;
   overflow-y: auto;
 }
@@ -176,7 +175,6 @@ border: 1px solid black;
 .buttonsave:hover{
   background: #059669;
 }
-/* ===== Note Cards Styling ===== */
 #notes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -223,7 +221,6 @@ border: 1px solid black;
   word-wrap: break-word;
 }
 
-/* Author */
 .note-author {
   font-size: 0.9rem;
   font-weight: 500;
@@ -277,18 +274,17 @@ border: 1px solid black;
 <body>
 
   <div class="dashboard">
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="profile">
         <h3 id="profileName">User</h3>
       </div>
       <nav>
         <ul>
-          <li class="active" onclick="allNotes()">📘 All Notes</li>
-          <li onclick="profileId()">👤 Profile</li>
-          <li onclick="logout()">🚪 Logout </li>
+          <li class="active" onclick="allNotes()">All Notes</li>
+          <li onclick="profileId()">Profile</li>
+          <li onclick="logout()">Logout </li>
           <li onclick="delAcc()">Delete Account</li>
-          <li onClick="aiHelper"> Ai Helper</li>
+          <li id="aiHelper"> Ai Helper</li>
         </ul>
       </nav>
     </aside>
@@ -312,13 +308,15 @@ border: 1px solid black;
       <input type="text" class="author" placeholder="Author">
       <br>
       <br>
+        <input type="file" name="image" class="file" multiple>
+        <br>
+        <br>
       <button class="buttonsave" onclick="savedNotes()">Save</button>
       <br>
        <br> 
        <br>
        <p id="message" style="width:500px; padding-left:200px;"></p>
        </div>
-        
       </section>
     </main>
     <button class="create-note-btn" onclick= "createNotes()" title="Create New Note">+</button>
@@ -374,6 +372,8 @@ showMessage('internal server error',error.message)
       console.log(content)
       const author = document.querySelector(".author").value
       console.log(author)
+      const  file = document.querySelector(".file").value
+      console.log(file)
       if(!title||!content||!author){
         showMessage('please fill all fields','red') 
         return
@@ -384,7 +384,7 @@ showMessage('internal server error',error.message)
         showMessage("you have not login yet",'red')
       }
       try{
-      const response =await fetch(`${url}/note`,{
+      const response =await fetch(`http://localhost:5000/note`,{
      method:'POST',
 headers:{
   "Content-Type" : "application/json",
@@ -393,7 +393,8 @@ headers:{
 body: JSON.stringify({
     title:title,
     content:content,
-    author:author
+    author:author,
+    file:file
    
 })
       })
@@ -573,6 +574,10 @@ showMessage(error.message||'internal server error','red')
         showMessage(error.message||"internal server error","red")
       }
     }
+    let ai = document.getElementById('aiHelper')
+    ai.addEventListener('click' , ()=>{
+      window.location.href = 'aiHelper.html'
+    })
      function showUserName() {
   const name = localStorage.getItem("username");
   if (name) {
